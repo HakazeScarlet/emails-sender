@@ -1,3 +1,5 @@
+import com.opencsv.bean.CsvToBeanBuilder;
+
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -9,19 +11,25 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class Main {
-    public static void main(String[] args) throws MessagingException {
+    public static void main(String[] args) throws MessagingException, URISyntaxException, FileNotFoundException {
         Properties prop = new Properties();
         prop.put("mail.smtp.starttls", true);
-        prop.put("mail.smtp.auth", true);
         prop.put("mail.smtp.starttls.enable", true);
+        prop.put("mail.smtp.starttls.required", true);
+        prop.put("mail.smtp.auth", true);
         prop.put("mail.smtp.host", "smtp.gmail.com");
         prop.put("mail.smtp.port", 587);
         prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
         prop.put("mail.smtp.EnableSSL.enable", true);
-        prop.put("mail.smtp.starttls.required", true);
         prop.put("mail.smtp.ssl.protocols", "TLSv1.2");
         prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
@@ -33,10 +41,21 @@ public class Main {
             }
         });
 
+        Path path = Path.of(Main.class.getResource("emails.csv").toURI());
+        List<Recipient> recipients = new CsvToBeanBuilder<Recipient>(new FileReader(path.toFile()))
+            .withType(Recipient.class)
+            .withSkipLines(1)
+            .build()
+            .parse();
+
+        String emails = recipients.stream()
+            .map(recipient -> recipient.getEmail())
+            .collect(Collectors.joining(","));
+
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress("hakaze.scarlet@gmail.com"));
         message.setRecipients(
-            Message.RecipientType.TO, InternetAddress.parse("frost.scarlet.163@gmail.com, kolegran@gmail.com"));
+            Message.RecipientType.TO, InternetAddress.parse(emails));
         message.setSubject("1st app");
 
         String msg = "Hello)";
