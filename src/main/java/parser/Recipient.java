@@ -1,3 +1,5 @@
+package parser;
+
 import com.opencsv.bean.CsvBindByPosition;
 
 public class Recipient {
@@ -26,7 +28,7 @@ public class Recipient {
 
     @Override
     public String toString() {
-        return "Recipient{" +
+        return "parser.Recipient{" +
             "name='" + name + '\'' +
             ", email='" + email + '\'' +
             '}';

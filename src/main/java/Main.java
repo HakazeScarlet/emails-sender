@@ -1,4 +1,5 @@
-import com.opencsv.bean.CsvToBeanBuilder;
+import parser.Recipient;
+import parser.RecipientCsvParser;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -12,10 +13,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -42,12 +41,8 @@ public class Main {
             }
         });
 
-        Path path = Path.of(Main.class.getResource("emails.csv").toURI());
-        List<Recipient> recipients = new CsvToBeanBuilder<Recipient>(new FileReader(path.toFile()))
-            .withType(Recipient.class)
-            .withSkipLines(1)
-            .build()
-            .parse();
+        RecipientCsvParser recipientCsvParser = new RecipientCsvParser();
+        List<Recipient> recipients = recipientCsvParser.parse();
 
         String emails = recipients.stream()
             .map(recipient -> recipient.getEmail())
