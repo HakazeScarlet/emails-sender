@@ -11,8 +11,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class Main {
-    public static void main(String[] args) throws MessagingException, URISyntaxException, FileNotFoundException {
+    public static void main(String[] args) throws MessagingException, URISyntaxException, IOException {
         Properties prop = new Properties();
         prop.put("mail.smtp.starttls", true);
         prop.put("mail.smtp.starttls.enable", true);
@@ -62,6 +63,7 @@ public class Main {
 
         MimeBodyPart mimeBodyPart = new MimeBodyPart();
         mimeBodyPart.setContent(msg, "text/html; charset=utf-8");
+        mimeBodyPart.attachFile(new File(Main.class.getResource("cats.png").toURI()));
 
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
