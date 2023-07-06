@@ -16,34 +16,35 @@ import java.util.stream.Collectors;
 
 public class EmailSender {
 
-    private SessionProvider sessionProvider;
+    private final SessionProvider sessionProvider;
 
     public EmailSender(SessionProvider sessionProvider) {
         this.sessionProvider = sessionProvider;
     }
 
-    public void send(List<Recipient> recipients) throws Exception {
-        Message message = new MimeMessage(sessionProvider.get());
-        message.setFrom(new InternetAddress(System.getenv("EMAIL")));
-        message.setRecipients(
-            Message.RecipientType.TO, InternetAddress.parse(extractEmails(recipients)));
-        message.setSubject("1st app");
+//    public void send(List<Recipient> recipients, String subject, String message) throws Exception {
+//
+//    }
 
-        String msg = "Hello)";
+    public void send(List<Recipient> recipients, String subject, String message, File attachment) throws Exception {
+        Message mimeMessage = new MimeMessage(sessionProvider.get());
+        mimeMessage.setFrom(new InternetAddress(System.getenv("EMAIL")));
+        mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extractEmails(recipients)));
+        mimeMessage.setSubject(subject);
 
         MimeBodyPart mimeBodyPart = new MimeBodyPart();
-        mimeBodyPart.setContent(msg, "text/html; charset=utf-8");
-        mimeBodyPart.attachFile(new File(getClass().getResource("cats.png").toURI()));
+        mimeBodyPart.setContent(message, "text/html; charset=utf-8");
+        mimeBodyPart.attachFile(attachment);
 
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
 
-        message.setContent(multipart);
+        mimeMessage.setContent(multipart);
 
-        Transport.send(message);
+        Transport.send(mimeMessage);
     }
 
-    public String extractEmails(List<Recipient> recipients) {
+    private String extractEmails(List<Recipient> recipients) {
          return recipients.stream()
             .map(recipient -> recipient.getEmail())
             .collect(Collectors.joining(","));
