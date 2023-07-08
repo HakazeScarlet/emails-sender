@@ -6,7 +6,7 @@ import session.SessionProvider;
 import java.io.File;
 import java.util.List;
 
-public class Main {
+public class MainApplication {
 
     public static void main(String[] args) throws Exception {
         RecipientCsvParser recipientCsvParser = new RecipientCsvParser();
@@ -18,7 +18,7 @@ public class Main {
             recipients,
             "Image with cats",
             "Hello. Please see the attachment",
-            new File(Main.class.getResource("cats.png").toURI())
+            new File(MainApplication.class.getResource("cats.png").toURI())
         );
 
 //        emailSender.send(

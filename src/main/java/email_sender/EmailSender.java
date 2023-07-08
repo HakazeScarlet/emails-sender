@@ -4,17 +4,22 @@ import parser.Recipient;
 import session.SessionProvider;
 
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class EmailSender {
+
+    private static final String RECIPIENT_EMAILS_DELIMITER = ",";
 
     private final SessionProvider sessionProvider;
 
@@ -26,27 +31,44 @@ public class EmailSender {
 //
 //    }
 
-    public void send(List<Recipient> recipients, String subject, String message, File attachment) throws Exception {
+    public void send(List<Recipient> recipients, String subject, String message, File attachment) {
         Message mimeMessage = new MimeMessage(sessionProvider.get());
-        mimeMessage.setFrom(new InternetAddress(System.getenv("EMAIL")));
-        mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extractEmails(recipients)));
-        mimeMessage.setSubject(subject);
+        try {
+            mimeMessage.setFrom(new InternetAddress(System.getenv("EMAIL"))); // System.getenv().getOrDefault("EMAIL", "anotherDefaultEmail@gmail.com");
+            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extractEmails(recipients)));
+            mimeMessage.setSubject(subject);
+            mimeMessage.setContent(buildEmailBody(message, attachment));
+            Transport.send(mimeMessage);
+        } catch (AddressException e) {
+            // TODO: add logic for AddrEx
+        } catch (MessagingException e) {
+            // TODO: add logic for MessEx
+        }
+    }
 
-        MimeBodyPart mimeBodyPart = new MimeBodyPart();
-        mimeBodyPart.setContent(message, "text/html; charset=utf-8");
-        mimeBodyPart.attachFile(attachment);
-
-        Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(mimeBodyPart);
-
-        mimeMessage.setContent(multipart);
-
-        Transport.send(mimeMessage);
+    private Multipart buildEmailBody(String message, File attachment) throws MessagingException {
+        try {
+            MimeBodyPart mimeBodyPart = new MimeBodyPart();
+            mimeBodyPart.setContent(message, "text/html; charset=utf-8");
+            mimeBodyPart.attachFile(attachment);
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(mimeBodyPart);
+            return multipart;
+        } catch (IOException e) {
+            throw new AttachmentAccessException("Cannot access to attachment", e);
+        }
     }
 
     private String extractEmails(List<Recipient> recipients) {
          return recipients.stream()
             .map(recipient -> recipient.getEmail())
-            .collect(Collectors.joining(","));
+            .collect(Collectors.joining(RECIPIENT_EMAILS_DELIMITER));
+    }
+
+    private static final class AttachmentAccessException extends RuntimeException {
+
+        public AttachmentAccessException(String message, Exception e) {
+            super(message, e);
+        }
     }
 }
