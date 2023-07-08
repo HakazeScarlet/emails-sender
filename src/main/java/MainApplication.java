@@ -4,6 +4,7 @@ import parser.RecipientCsvParser;
 import session.SessionProvider;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class MainApplication {
@@ -14,23 +15,34 @@ public class MainApplication {
 
         EmailSender emailSender = new EmailSender(new SessionProvider());
 
-        File attachment = new File(MainApplication.class.getResource("cats.png").toURI());
         emailSender.send(
             recipients,
             "Image with cats",
             "Hello. Please see the attachment",
-            attachment
+            getResource("cats.png")
         );
 
 //        emailSender.send(
-//            otherRecipients,
-//            "Image with food",
-//            "Hello...",
-//            new File(Main.class.getResource("apples.png").toURI())
+//            recipients1,
+//            "Image with dogs",
+//            "Hello. Please see the attachment",
+//            getResource("dog.png")
+//        );
+//
+//        emailSender.send(
+//            recipients2,
+//            "Image with mouse",
+//            "Hello. Please see the attachment",
+//            getResource("mouse.png")
 //        );
     }
 
     private static File getResource(String path) {
-        return new File(MainApplication.class.getResource("cats.png").toURI());
+        try {
+            return new File(MainApplication.class.getResource(path).toURI());
+        } catch (URISyntaxException e) {
+            // TODO: create and throw custom exception
+            return null; // dummy
+        }
     }
 }
