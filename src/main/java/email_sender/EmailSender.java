@@ -40,9 +40,9 @@ public class EmailSender {
             mimeMessage.setContent(buildEmailBody(message, attachment));
             Transport.send(mimeMessage);
         } catch (AddressException e) {
-            // TODO: add logic for AddrEx
+            throw new EmailAddressException("Missing sender or recipient emails", e);
         } catch (MessagingException e) {
-            // TODO: add logic for MessEx
+            throw new EmailBodyException("Incorrect message content or subject", e);
         }
     }
 
@@ -63,6 +63,20 @@ public class EmailSender {
          return recipients.stream()
             .map(recipient -> recipient.getEmail())
             .collect(Collectors.joining(RECIPIENT_EMAILS_DELIMITER));
+    }
+
+    private static final class EmailAddressException extends RuntimeException {
+
+        public EmailAddressException(String message, Exception e) {
+            super(message, e);
+        }
+    }
+
+    private static final class EmailBodyException extends RuntimeException {
+
+        public EmailBodyException(String message, Exception e) {
+            super(message, e);
+        }
     }
 
     private static final class AttachmentAccessException extends RuntimeException {
