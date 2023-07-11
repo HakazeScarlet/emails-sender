@@ -41,8 +41,14 @@ public class MainApplication {
         try {
             return new File(MainApplication.class.getResource(path).toURI());
         } catch (URISyntaxException e) {
-            // TODO: create and throw custom exception
-            return null; // dummy
+            throw new ResourceReadingException("Unable to read resource", e);
+        }
+    }
+
+    private static final class ResourceReadingException extends RuntimeException {
+
+        public ResourceReadingException(String message, Exception e) {
+            super(message, e);
         }
     }
 }
