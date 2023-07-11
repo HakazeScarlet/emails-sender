@@ -1,5 +1,6 @@
 package email_sender;
 
+import org.apache.log4j.Logger;
 import parser.Recipient;
 import session.SessionProvider;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class EmailSender {
 
     private static final String RECIPIENT_EMAILS_DELIMITER = ",";
+    private static final Logger logger = Logger.getLogger(EmailSender.class);
 
     private final SessionProvider sessionProvider;
 
@@ -38,11 +40,23 @@ public class EmailSender {
             mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extractEmails(recipients)));
             mimeMessage.setSubject(subject);
             mimeMessage.setContent(buildEmailBody(message, attachment));
-            Transport.send(mimeMessage);
+            send(mimeMessage);
         } catch (AddressException e) {
             throw new EmailAddressException("Missing sender or recipient emails", e);
         } catch (MessagingException e) {
             throw new EmailBodyException("Incorrect message content or subject", e);
+        } catch (Exception e) {
+            logger.error("Something went wrong", e);
+//            Thread.sleep(5000);
+            send(mimeMessage);
+        }
+    }
+
+    private void send(Message mimeMessage) {
+        try {
+            Transport.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new SendingEmailException("Something went wrong during email sending", e);
         }
     }
 
@@ -82,6 +96,13 @@ public class EmailSender {
     private static final class AttachmentAccessException extends RuntimeException {
 
         public AttachmentAccessException(String message, Exception e) {
+            super(message, e);
+        }
+    }
+
+    private static final class SendingEmailException extends RuntimeException {
+
+        public SendingEmailException(String message, Exception e) {
             super(message, e);
         }
     }
