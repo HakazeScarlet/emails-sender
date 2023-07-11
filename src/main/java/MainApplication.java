@@ -1,4 +1,5 @@
 import email_sender.EmailSender;
+import org.apache.log4j.Logger;
 import parser.Recipient;
 import parser.RecipientCsvParser;
 import session.SessionProvider;
@@ -9,32 +10,25 @@ import java.util.List;
 
 public class MainApplication {
 
+    private static final int SPAM_NUMBER = 3;
+    private final static Logger logger = Logger.getLogger(MainApplication.class);
+
     public static void main(String[] args) {
         RecipientCsvParser recipientCsvParser = new RecipientCsvParser();
         List<Recipient> recipients = recipientCsvParser.parse();
 
         EmailSender emailSender = new EmailSender(new SessionProvider());
 
-        emailSender.send(
-            recipients,
-            "Image with cats",
-            "Hello. Please see the attachment",
-            getResource("cats.png")
-        );
+        for (int i = 0; i < SPAM_NUMBER; i++) {
+            emailSender.send(
+                recipients,
+                "Image with cats " + i,
+                "Hello. Please see the attachment",
+                getResource("cats.png")
+            );
 
-//        emailSender.send(
-//            recipients1,
-//            "Image with dogs",
-//            "Hello. Please see the attachment",
-//            getResource("dog.png")
-//        );
-//
-//        emailSender.send(
-//            recipients2,
-//            "Image with mouse",
-//            "Hello. Please see the attachment",
-//            getResource("mouse.png")
-//        );
+            logger.info("Email with number " + i + " has been sent");
+        }
     }
 
     private static File getResource(String path) {
