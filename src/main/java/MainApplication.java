@@ -2,7 +2,7 @@ import email_sender.EmailSender;
 import org.apache.log4j.Logger;
 import parser.Recipient;
 import parser.RecipientCsvParser;
-import session.SessionProvider;
+import session.MailhogSessionProvider;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -17,7 +17,7 @@ public class MainApplication {
         RecipientCsvParser recipientCsvParser = new RecipientCsvParser();
         List<Recipient> recipients = recipientCsvParser.parse();
 
-        EmailSender emailSender = new EmailSender(new SessionProvider());
+        EmailSender emailSender = new EmailSender(new MailhogSessionProvider());
 
         for (int i = 0; i < SPAM_NUMBER; i++) {
             emailSender.send(
