@@ -2,7 +2,7 @@ import email_sender.EmailSender;
 import org.apache.log4j.Logger;
 import parser.Recipient;
 import parser.RecipientCsvParser;
-import session.MailhogSessionProvider;
+import session.GmailSessionProvider;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -10,14 +10,14 @@ import java.util.List;
 
 public class MainApplication {
 
-    private static final int SPAM_NUMBER = 3;
+    private static final int SPAM_NUMBER = 1;
     private final static Logger logger = Logger.getLogger(MainApplication.class);
 
     public static void main(String[] args) {
         RecipientCsvParser recipientCsvParser = new RecipientCsvParser();
         List<Recipient> recipients = recipientCsvParser.parse();
 
-        EmailSender emailSender = new EmailSender(new MailhogSessionProvider());
+        EmailSender emailSender = new EmailSender(new GmailSessionProvider());
 
         for (int i = 0; i < SPAM_NUMBER; i++) {
             emailSender.send(

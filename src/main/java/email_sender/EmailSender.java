@@ -62,11 +62,13 @@ public class EmailSender {
 
     private Multipart buildEmailBody(String message, File attachment) throws MessagingException {
         try {
-            MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setContent(message, "text/html; charset=utf-8");
-            mimeBodyPart.attachFile(attachment);
+            MimeBodyPart messagePart = new MimeBodyPart();
+            messagePart.setContent(message, "text/html; charset=utf-8");
+            MimeBodyPart attachmentPart = new MimeBodyPart();
+            attachmentPart.attachFile(attachment);
             Multipart multipart = new MimeMultipart();
-            multipart.addBodyPart(mimeBodyPart);
+            multipart.addBodyPart(messagePart);
+            multipart.addBodyPart(attachmentPart);
             return multipart;
         } catch (IOException e) {
             throw new AttachmentAccessException("Cannot access to attachment", e);
