@@ -6,15 +6,17 @@ import session.GmailSessionProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class MainApplication {
 
-    private static final int SPAM_NUMBER = 1;
+    private static final int SPAM_NUMBER = 3;
     private final static Logger logger = Logger.getLogger(MainApplication.class);
 
     public static void main(String[] args) {
@@ -23,49 +25,45 @@ public class MainApplication {
 
         EmailSender emailSender = new EmailSender(new GmailSessionProvider());
 
-        for (int i = 0; i < SPAM_NUMBER; i++) {
+        for (int i = 1; i < SPAM_NUMBER; i++) {
+            File attachment = getRandomResource("/images");
+
             emailSender.send(
                 recipients,
-                "Image with cats " + i,
+                i + " image with cats",
                 "Hello. Please see the attachment",
-                getRandomResource("resources")
+                attachment
             );
 
             logger.info("Email with number " + i + " has been sent");
         }
     }
 
-    private static File getResource(String path) {
+    private static File getRandomResource(String pathToResources) {
         try {
-            return new File(MainApplication.class.getResource(path).toURI());
-        } catch (URISyntaxException e) {
-            throw new ResourceReadingException("Unable to read resource", e);
-        }
-    }
+            URI uri = MainApplication.class.getResource(pathToResources).toURI();
 
-    private static Optional<File> getRandomResource(String pathToResources) {
-        try {
-            new File(MainApplication.class.getResource(pathToResources).toURI());
-            return Files.walk(Path.of(pathToResources))
-                    .map(Path::toFile)
-                    .findAny();
+            List<File> collect = Files.walk(Path.of(uri))
+                .map(Path::toFile)
+                .filter(file -> !file.isDirectory())
+                .collect(Collectors.toList());
+
+            return getRandom(collect);
         } catch (IOException e) {
-            throw new ResourcesFindException("Resources not found", e);
+            throw new ResourceParsingException("Resources not found", e);
         } catch (URISyntaxException e) {
-        throw new ResourceReadingException("Unable to read resource", e);
+            throw new ResourceParsingException("Unable to read resource", e);
         }
     }
 
-    private static final class ResourceReadingException extends RuntimeException {
-
-        public ResourceReadingException(String message, Exception e) {
-            super(message, e);
-        }
+    public static File getRandom(List<File> files) {
+        Random random = new Random();
+        return files.get(random.nextInt(files.size()));
     }
 
-    private static final class ResourcesFindException extends RuntimeException {
+    private static final class ResourceParsingException extends RuntimeException {
 
-        public ResourcesFindException(String message, Exception e) {
+        public ResourceParsingException(String message, Exception e) {
             super(message, e);
         }
     }
