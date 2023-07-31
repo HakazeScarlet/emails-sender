@@ -77,7 +77,7 @@ public class EmailSender {
 
     private String extractEmails(List<Recipient> recipients) {
          return recipients.stream()
-            .map(recipient -> recipient.getEmail())
+            .map(Recipient::getEmail)
             .collect(Collectors.joining(RECIPIENT_EMAILS_DELIMITER));
     }
 
