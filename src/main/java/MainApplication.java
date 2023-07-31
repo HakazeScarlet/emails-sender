@@ -5,6 +5,7 @@ import parser.RecipientCsvParser;
 import session.MailhogSessionProvider;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,7 +13,8 @@ import java.util.concurrent.Executors;
 public class MainApplication {
 
     private static final int SPAM_NUMBER = 3;
-    private final static Logger logger = Logger.getLogger(MainApplication.class);
+    private static final int THREAD_NUMBER = 7;
+    private static final Logger logger = Logger.getLogger(MainApplication.class);
 
     public static void main(String[] args) {
         RecipientCsvParser recipientCsvParser = new RecipientCsvParser();
@@ -20,7 +22,7 @@ public class MainApplication {
 
         EmailSender emailSender = new EmailSender(new MailhogSessionProvider());
 
-        ExecutorService executorService = Executors.newFixedThreadPool(7);
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_NUMBER);
         Runnable runnable = () -> spam(recipients, emailSender);
         executorService.submit(runnable);
 //        executorService.awaitTermination(5, TimeUnit.SECONDS);
@@ -32,7 +34,7 @@ public class MainApplication {
             File attachment = ResourceUtil.getRandomResource("/images");
             emailSender.send(
                 recipients,
-                i + " image with cats",
+                "Image with cats " + LocalDateTime.now(),
                 "Hello. Please see the attachment",
                 attachment
             );
