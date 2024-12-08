@@ -8,11 +8,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -29,14 +25,10 @@ public class EmailSender {
         this.sessionProvider = sessionProvider;
     }
 
-//    public void send(List<Recipient> recipients, String subject, String message) throws Exception {
-//
-//    }
-
     public void send(List<Recipient> recipients, String subject, String message, File attachment) {
         Message mimeMessage = new MimeMessage(sessionProvider.get());
         try {
-            mimeMessage.setFrom(new InternetAddress(System.getenv("EMAIL"))); // System.getenv().getOrDefault("EMAIL", "anotherDefaultEmail@gmail.com");
+            mimeMessage.setFrom(new InternetAddress(System.getenv("EMAIL")));
             mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(extractEmails(recipients)));
             mimeMessage.setSubject(subject);
             mimeMessage.setContent(buildEmailBody(message, attachment));

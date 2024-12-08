@@ -18,7 +18,7 @@ public class MainApplication {
 
     public static void main(String[] args) {
         RecipientCsvParser recipientCsvParser = new RecipientCsvParser();
-        List<Recipient> recipients = recipientCsvParser.parse();
+        List<Recipient> recipients = recipientCsvParser.parse("emails.csv");
 
         EmailSender emailSender = new EmailSender(new MailhogSessionProvider());
 

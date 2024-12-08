@@ -9,11 +9,9 @@ import java.util.Objects;
 
 public class RecipientCsvParser {
 
-    private static final String EMAILS_CSV = "emails.csv";
-
-    public List<Recipient> parse() {
+    public List<Recipient> parse(String fileName) {
         try {
-            Path path = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(EMAILS_CSV)).toURI());
+            Path path = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(fileName)).toURI());
             return new CsvToBeanBuilder<Recipient>(new FileReader(path.toFile()))
                 .withType(Recipient.class)
                 .withSkipLines(1)
