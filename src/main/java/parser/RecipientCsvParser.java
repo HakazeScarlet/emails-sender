@@ -18,11 +18,11 @@ public class RecipientCsvParser {
                 .build()
                 .parse();
         } catch (Exception e) {
-            throw new CsvParsingException("Cannot parse CSV file", e);
+            throw new CsvParsingException("Cannot parse CSV file or the file path is incorrect", e);
         }
     }
 
-    private static final class CsvParsingException extends RuntimeException {
+    public static final class CsvParsingException extends RuntimeException {
 
         public CsvParsingException(String message, Exception e) {
             super(message, e);
