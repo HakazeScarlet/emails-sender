@@ -3,6 +3,7 @@ package parser;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,15 +23,14 @@ class RecipientCsvParserTest {
     }
 
     @Test
-    void whenCsvIsEmpty_returnEmptyRecipientsList() {
+    void whenCsvIsEmpty_returnEmptyList() {
         List<Recipient> actual = new RecipientCsvParser().parse("emptyFile.csv");
-        assertEquals(new ArrayList<Recipient>(), actual);
+        assertEquals(Collections.emptyList(), actual);
     }
 
     @Test
-    void whenCsvWithoutFirstLine_returnListWithoutFirstRecipient() {
-        List<Recipient> expected = new ArrayList<>();
-        expected.add(getRecipient("Second User", "second@email.com"));
+    void whenCsvWithoutTitle_returnListWithoutFirstRecipient() {
+        List<Recipient> expected = List.of(getRecipient("Second User", "second@email.com"));
 
         List<Recipient> actual = new RecipientCsvParser().parse("emailsWithoutFirstLine.csv");
 
@@ -38,16 +38,16 @@ class RecipientCsvParserTest {
     }
 
     @Test
-    void whenCsvHasOnceRandomLine_returnEmptyRecipientList() {
-        List<Recipient> actual = new RecipientCsvParser().parse("randomFile.csv");
-        assertEquals(new ArrayList<Recipient>(), actual);
+    void whenCsvHasOneNotStandardLine_returnEmptyList() {
+        List<Recipient> actual = new RecipientCsvParser().parse("notStandardFile.csv");
+        assertEquals(Collections.emptyList(), actual);
     }
 
     @Test
     void whenCsvDoesNotExist_throwCsvParsingException() {
         assertThrows(
             RecipientCsvParser.CsvParsingException.class,
-            () -> new RecipientCsvParser().parse("voidName.csv")
+            () -> new RecipientCsvParser().parse("unknown.csv")
         );
     }
 
